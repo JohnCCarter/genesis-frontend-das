@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Activity, TrendingUp, TrendingDown, Play, Pause, Settings, Wifi, WifiOff } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
+import { Toaster } from 'sonner'
 import PerformanceChart from '@/components/performance-chart'
 import TradesTable from '@/components/trades-table'
 import MetricCard from '@/components/metric-card'
@@ -137,6 +138,16 @@ function App() {
           </TabsContent>
         </Tabs>
       </div>
+      <Toaster 
+        theme="dark"
+        toastOptions={{
+          style: {
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--card-foreground))',
+            border: '1px solid hsl(var(--border))',
+          },
+        }}
+      />
     </div>
   )
 }
