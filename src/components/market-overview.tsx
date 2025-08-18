@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, TrendingDown, Activity, DollarSign } from '@phosphor-icons/react'
-import { usePriceFeed } from '@/hooks/use-price-feed'
+import { useWebSocket } from '@/hooks/use-websocket'
 
 export default function MarketOverview() {
-  const { prices } = usePriceFeed()
+  const { prices } = useWebSocket()
 
   // Calculate market metrics
   const btcPrice = prices.find(p => p.symbol === 'BTC')?.price || 0

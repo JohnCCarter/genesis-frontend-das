@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, Minus } from '@phosphor-icons/react'
-import { usePriceFeed } from '@/hooks/use-price-feed'
+import { useWebSocket } from '@/hooks/use-websocket'
 
 function formatPrice(price: number): string {
   if (price >= 1000) {
@@ -26,16 +26,30 @@ function formatVolume(volume: number): string {
 }
 
 export default function PriceFeed() {
-  const { prices, isConnected, lastUpdate } = usePriceFeed()
+  const { prices, isConnected, isConnecting } = useWebSocket()
 
-  const formatLastUpdate = () => {
-    if (!lastUpdate) return 'Never'
-    const seconds = Math.floor((Date.now() - lastUpdate) / 1000)
+  const getLastUpdate = () => {
+    if (prices.length === 0) return null
+    const latestUpdate = Math.max(...prices.map(p => p.lastUpdate))
+    const seconds = Math.floor((Date.now() - latestUpdate) / 1000)
+    if (seconds < 5) return 'Just now'
     if (seconds < 60) return `${seconds}s ago`
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) return `${minutes}m ago`
     const hours = Math.floor(minutes / 60)
     return `${hours}h ago`
+  }
+
+  const getStatusText = () => {
+    if (isConnecting) return 'Connecting...'
+    if (isConnected) return `Updated ${getLastUpdate() || 'recently'}`
+    return 'Disconnected'
+  }
+
+  const getStatusIndicator = () => {
+    if (isConnecting) return 'bg-yellow-500 animate-pulse'
+    if (isConnected) return 'bg-green-500 animate-pulse'
+    return 'bg-red-500'
   }
 
   return (
@@ -44,9 +58,9 @@ export default function PriceFeed() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Live Crypto Prices</CardTitle>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+            <div className={`w-2 h-2 rounded-full ${getStatusIndicator()}`} />
             <span className="text-xs text-muted-foreground">
-              {isConnected ? `Updated ${formatLastUpdate()}` : 'Disconnected'}
+              {getStatusText()}
             </span>
           </div>
         </div>
@@ -56,7 +70,9 @@ export default function PriceFeed() {
           <div className="flex items-center justify-center h-32 text-muted-foreground">
             <div className="text-center">
               <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-sm">Loading price data...</p>
+              <p className="text-sm">
+                {isConnecting ? 'Connecting to real-time data...' : 'Loading price data...'}
+              </p>
             </div>
           </div>
         ) : (

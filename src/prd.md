@@ -2,15 +2,16 @@
 
 ## Core Purpose & Success
 
-**Mission Statement**: Provide real-time monitoring and control capabilities for automated cryptocurrency trading operations with live market data integration.
+**Mission Statement**: Provide real-time monitoring and control capabilities for automated cryptocurrency trading operations with WebSocket-powered live market data integration.
 
 **Success Indicators**: 
-- Real-time price data updates every 5 seconds with 99% uptime
+- Real-time price data updates via WebSocket with sub-second latency and 99% uptime
+- Automatic reconnection and failover mechanisms for uninterrupted data flow
 - Clear visualization of bot performance and market conditions
 - Intuitive controls for bot management and configuration
 - Responsive interface across all device sizes
 
-**Experience Qualities**: Professional, Reliable, Informative
+**Experience Qualities**: Professional, Reliable, Real-time
 
 ## Project Classification & Approach
 
@@ -20,10 +21,15 @@
 
 ## Essential Features
 
-### Real-Time Price Feeds
-- **Functionality**: Live cryptocurrency price updates from Binance API for BTC, ETH, ADA, SOL, DOT, AVAX
-- **Purpose**: Enable informed trading decisions and market awareness
-- **Success Criteria**: Sub-5-second price updates with visual connection status indicators
+### WebSocket Real-Time Data Feeds
+- **Functionality**: Live cryptocurrency price updates via Binance WebSocket streams for BTC, ETH, ADA, SOL, DOT, AVAX with automatic reconnection
+- **Purpose**: Enable instant market awareness and informed trading decisions
+- **Success Criteria**: Sub-second price updates with visual connection status, automatic failover, and seamless reconnection
+
+### Trading Data Streams
+- **Functionality**: Real-time portfolio value, P&L, and position updates via WebSocket connections
+- **Purpose**: Immediate feedback on trading performance and risk exposure
+- **Success Criteria**: Live portfolio updates with timestamp accuracy and data integrity validation
 
 ### Bot Control Dashboard
 - **Functionality**: Start/stop trading bot, view current status, monitor portfolio metrics

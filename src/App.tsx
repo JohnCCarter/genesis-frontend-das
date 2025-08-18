@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Activity, TrendingUp, TrendingDown, Play, Pause, Settings, Wifi, WifiOff } from '@phosphor-icons/react'
+import { Activity, TrendingUp, TrendingDown, Play, Pause, Settings, Wifi, WifiOff, ArrowClockwise } from '@phosphor-icons/react'
 import { useKV } from '@github/spark/hooks'
-import { Toaster } from 'sonner'
+import { useWebSocket } from '@/hooks/use-websocket'
+import { Toaster, toast } from 'sonner'
 import PerformanceChart from '@/components/performance-chart'
 import TradesTable from '@/components/trades-table'
 import MetricCard from '@/components/metric-card'
@@ -14,14 +15,56 @@ import BotControls from '@/components/bot-controls'
 import ConfigurationPanel from '@/components/configuration-panel'
 import PriceFeed from '@/components/price-feed'
 import MarketOverview from '@/components/market-overview'
+import RealTimeIndicator from '@/components/realtime-indicator'
 
 function App() {
   const [botStatus, setBotStatus] = useKV('bot-status', 'paused')
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('connected')
-  const [portfolioValue] = useKV('portfolio-value', 125430.50)
-  const [dailyPnL] = useKV('daily-pnl', 2340.75)
-  const [totalPnL] = useKV('total-pnl', 23450.30)
-  const [activePositions] = useKV('active-positions', 7)
+  const { 
+    tradingData, 
+    connectionStatus, 
+    isConnected, 
+    isConnecting, 
+    reconnect 
+  } = useWebSocket()
+  
+  // Use WebSocket data if available, otherwise fall back to stored values
+  const portfolioValue = tradingData?.portfolioValue ?? 125430.50
+  const dailyPnL = tradingData?.dailyPnL ?? 2340.75
+  const totalPnL = tradingData?.totalPnL ?? 23450.30
+  const activePositions = tradingData?.activePositions ?? 7
+
+  // Show connection status change notifications
+  useEffect(() => {
+    if (connectionStatus === 'connected') {
+      toast.success('Real-time data connected', {
+        description: 'Receiving live updates from WebSocket'
+      })
+    } else if (connectionStatus === 'disconnected') {
+      toast.error('Connection lost', {
+        description: 'Attempting to reconnect...'
+      })
+    }
+  }, [connectionStatus])
+
+  const getConnectionStatusText = () => {
+    switch (connectionStatus) {
+      case 'connected': return 'Connected'
+      case 'connecting': return 'Connecting...'
+      case 'disconnected': return 'Disconnected'
+      default: return 'Unknown'
+    }
+  }
+
+  const getConnectionIcon = () => {
+    if (isConnecting) {
+      return <ArrowClockwise className="w-5 h-5 text-yellow-500 animate-spin" />
+    }
+    return isConnected ? (
+      <Wifi className="w-5 h-5 text-green-500" />
+    ) : (
+      <WifiOff className="w-5 h-5 text-red-500" />
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
@@ -34,12 +77,18 @@ function App() {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              {connectionStatus === 'connected' ? (
-                <Wifi className="w-5 h-5 text-green-500" />
-              ) : (
-                <WifiOff className="w-5 h-5 text-red-500" />
+              {getConnectionIcon()}
+              <span className="text-sm">{getConnectionStatusText()}</span>
+              {!isConnected && !isConnecting && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={reconnect}
+                  className="h-6 px-2 text-xs"
+                >
+                  Retry
+                </Button>
               )}
-              <span className="text-sm">{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</span>
             </div>
             <Badge variant={botStatus === 'active' ? 'default' : 'secondary'} className="gap-2">
               {botStatus === 'active' ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
@@ -114,6 +163,7 @@ function App() {
           </TabsContent>
 
           <TabsContent value="markets" className="space-y-6">
+            <RealTimeIndicator />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PriceFeed />
               <Card>
