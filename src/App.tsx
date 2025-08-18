@@ -12,6 +12,8 @@ import TradesTable from '@/components/trades-table'
 import MetricCard from '@/components/metric-card'
 import BotControls from '@/components/bot-controls'
 import ConfigurationPanel from '@/components/configuration-panel'
+import PriceFeed from '@/components/price-feed'
+import MarketOverview from '@/components/market-overview'
 
 function App() {
   const [botStatus, setBotStatus] = useKV('bot-status', 'paused')
@@ -33,9 +35,9 @@ function App() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               {connectionStatus === 'connected' ? (
-                <Wifi className="w-5 h-5 text-success" />
+                <Wifi className="w-5 h-5 text-green-500" />
               ) : (
-                <WifiOff className="w-5 h-5 text-destructive" />
+                <WifiOff className="w-5 h-5 text-red-500" />
               )}
               <span className="text-sm">{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</span>
             </div>
@@ -80,8 +82,9 @@ function App() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="markets">Markets</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="trades">Trades</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -100,12 +103,30 @@ function App() {
                   </CardContent>
                 </Card>
               </div>
-              <div>
+              <div className="space-y-6">
                 <BotControls 
                   status={botStatus} 
                   onStatusChange={setBotStatus}
                 />
+                <MarketOverview />
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="markets" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <PriceFeed />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Price Alerts</CardTitle>
+                  <CardDescription>Configure price movement notifications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                    <p className="text-sm">Price alerts configuration coming soon</p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
