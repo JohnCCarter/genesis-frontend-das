@@ -1,146 +1,109 @@
-# Trading Bot Dashboard - Product Requirements Document
+# Trading Bot Dashboard PRD
 
 ## Core Purpose & Success
-
-**Mission Statement**: Provide real-time monitoring and control capabilities for automated cryptocurrency trading operations with WebSocket-powered live market data integration.
-
-**Success Indicators**: 
-- Real-time price data updates via WebSocket with sub-second latency and 99% uptime
-- Automatic reconnection and failover mechanisms for uninterrupted data flow
-- Clear visualization of bot performance and market conditions
-- Intuitive controls for bot management and configuration
-- Responsive interface across all device sizes
-
-**Experience Qualities**: Professional, Reliable, Real-time
+- **Mission Statement**: A React/TypeScript dashboard for monitoring and controlling a trading bot via REST API interactions
+- **Success Indicators**: Successful JWT authentication, real-time WebSocket status monitoring, working toggle controls, functional Quick Trade interface, and validation capabilities
+- **Experience Qualities**: Professional, responsive, reliable
 
 ## Project Classification & Approach
-
-**Complexity Level**: Light Application (multiple features with persistent state and real-time data)
-
-**Primary User Activity**: Monitoring and Controlling - Users primarily consume real-time data while having secondary control capabilities
+- **Complexity Level**: Light Application (multiple features with basic state management)
+- **Primary User Activity**: Acting and Monitoring (controlling trading bot and monitoring status)
 
 ## Essential Features
 
-### WebSocket Real-Time Data Feeds
-- **Functionality**: Live cryptocurrency price updates via Binance WebSocket streams for BTC, ETH, ADA, SOL, DOT, AVAX with automatic reconnection
-- **Purpose**: Enable instant market awareness and informed trading decisions
-- **Success Criteria**: Sub-second price updates with visual connection status, automatic failover, and seamless reconnection
+### Authentication System
+- **Functionality**: JWT token acquisition and management via POST /api/v2/auth/ws-token
+- **Purpose**: Secure API access with Bearer token authentication
+- **Storage**: localStorage with key 'jwt'
 
-### Trading Data Streams
-- **Functionality**: Real-time portfolio value, P&L, and position updates via WebSocket connections
-- **Purpose**: Immediate feedback on trading performance and risk exposure
-- **Success Criteria**: Live portfolio updates with timestamp accuracy and data integrity validation
+### Status Monitoring
+- **Functionality**: Real-time WebSocket connection status polling every 5 seconds
+- **Purpose**: Monitor bot connectivity and active subscriptions
+- **API**: GET /api/v2/ws/pool/status and GET /api/v2/ui/capabilities
 
-### Bot Control Dashboard
-- **Functionality**: Start/stop trading bot, view current status, monitor portfolio metrics
-- **Purpose**: Central control point for trading operations
-- **Success Criteria**: Instant status updates and responsive control actions
+### Toggle Controls
+- **Functionality**: Enable/disable WS Strategy and Validation Warmup modes
+- **Purpose**: Runtime control of bot behavior
+- **API**: POST /api/v2/mode/ws-strategy and POST /api/v2/mode/validation-warmup
 
-### Performance Analytics
-- **Functionality**: Portfolio value tracking, P&L visualization, trade history
-- **Purpose**: Assess trading strategy effectiveness and historical performance
-- **Success Criteria**: Accurate calculation of returns and clear trend visualization
+### Quick Trade Interface
+- **Functionality**: Symbol selection, trade preview, and order execution
+- **Purpose**: Manual trading capabilities with market data preview
+- **API**: GET /api/v2/market/ticker/:symbol and POST /api/v2/order
 
-### Market Overview
-- **Functionality**: Aggregate market metrics, sentiment indicators, volume data
-- **Purpose**: Contextual market understanding for trading decisions
-- **Success Criteria**: Comprehensive market snapshot updated in real-time
+### Validation Panel
+- **Functionality**: Run probability validation with configurable parameters
+- **Purpose**: Analyze trading strategies before execution
+- **API**: POST /api/v2/prob/validate/run
 
 ## Design Direction
 
 ### Visual Tone & Identity
-**Emotional Response**: Confidence, precision, and professional competence
-**Design Personality**: Sophisticated financial interface that feels cutting-edge yet trustworthy
-**Visual Metaphors**: Financial terminals, trading floors, high-tech monitoring systems
-**Simplicity Spectrum**: Rich interface with comprehensive data presentation balanced by clear hierarchy
+- **Emotional Response**: Confidence, control, precision
+- **Design Personality**: Professional, modern, data-focused
+- **Visual Metaphors**: Financial dashboards, trading terminals
+- **Simplicity Spectrum**: Clean interface with dense information display
 
 ### Color Strategy
-**Color Scheme Type**: Monochromatic with strategic accent colors
-**Primary Color**: Deep blue (oklch(0.25 0.1 250)) - conveys trust and stability
-**Secondary Colors**: Dark backgrounds (oklch(0.08 0.02 250)) for extended viewing comfort
-**Accent Color**: Bright blue (oklch(0.7 0.15 220)) for interactive elements and focus
-**Success Color**: Green (oklch(0.6 0.15 150)) for positive values and gains
-**Destructive Color**: Red (oklch(0.5 0.2 25)) for negative values and losses
+- **Color Scheme Type**: Custom financial palette
+- **Primary Color**: Deep blue (#1e40af) - trust and stability
+- **Secondary Colors**: Dark grays for backgrounds, white for text
+- **Accent Color**: Electric blue (#3b82f6) for CTAs and active states
+- **Success/Error**: Green (#10b981) for success, Red (#ef4444) for errors
+- **Foreground/Background Pairings**: 
+  - White text on dark backgrounds (WCAG AA compliant)
+  - Dark text on light cards
+  - High contrast for data readability
 
 ### Typography System
-**Font Pairing Strategy**: Single font family (Inter) with varied weights for hierarchy
-**Primary Font**: Inter - clean, modern, highly legible for financial data
-**Font Features**: Tabular numbers enabled for aligned numerical data
-**Typographic Hierarchy**: Bold headers, medium subheadings, regular body text
+- **Font Pairing Strategy**: Inter for all text (consistent, modern)
+- **Typographic Hierarchy**: Bold headings, regular body, tabular numbers
+- **Font Personality**: Clean, professional, highly legible
+- **Which fonts**: Inter (Google Fonts)
+- **Legibility Check**: Optimized for financial data display
 
-### Visual Hierarchy & Layout
-**Grid System**: CSS Grid and Flexbox for responsive layouts
-**Content Density**: Information-rich but organized into digestible cards and sections
-**Responsive Approach**: Mobile-first design with progressive enhancement
+### UI Elements & Component Selection
+- **Component Usage**: shadcn/ui components for consistency
+- **Cards**: Status displays, form containers
+- **Buttons**: Primary actions, toggles, form submissions
+- **Badges**: Status indicators, connection states
+- **Tables**: Trade history, validation results
+- **Forms**: Trade inputs, validation parameters
 
-### UI Components & Interactions
-**Component Usage**: Shadcn components for consistent, accessible interface elements
-**Real-time Updates**: Smooth animations for price changes and status updates
-**Visual Feedback**: Connection status indicators, loading states, and success confirmations
+### Animations
+- **Purposeful Meaning**: Subtle feedback for state changes
+- **Loading States**: Spinners for API calls
+- **Status Updates**: Smooth transitions for connection states
 
-## Implementation Features
-
-### Navigation Structure
-- **Overview**: Portfolio summary, performance chart, bot controls, market overview
-- **Markets**: Live price feeds, market analysis, price alerts configuration
-- **Analytics**: Detailed performance analysis and charts
-- **Trades**: Complete trade history and execution details
-- **Settings**: Bot configuration and system preferences
-
-### Real-Time Data Management
-- **Price Feed Service**: Singleton service managing WebSocket-like connections to Binance API
-- **Custom Hooks**: React hooks for subscribing to live price data
-- **Connection Management**: Automatic reconnection and error handling
-- **Data Persistence**: Key trading metrics stored using useKV for session persistence
-
-### Performance Considerations
-- **Update Frequency**: 5-second intervals for price data to balance freshness with API limits
-- **Connection Status**: Visual indicators for live data connection health
-- **Error Handling**: Graceful degradation when data feeds are unavailable
-- **Memory Management**: Proper cleanup of subscriptions and intervals
-
-## Technical Architecture
-
-### Data Flow
-1. Price Feed Service fetches from Binance API every 5 seconds
-2. Service notifies all subscribed components via observer pattern
-3. Components update UI with smooth transitions
-4. Connection status tracked and displayed to users
-
-### State Management
-- **Persistent State**: Bot configuration, portfolio values using useKV
-- **Temporary State**: UI states, form inputs using useState
-- **Real-time State**: Price data managed through custom hooks
+## Implementation Considerations
 
 ### API Integration
-- **External API**: Binance public API for cryptocurrency prices
-- **Error Handling**: Comprehensive error boundaries and fallback states
-- **Rate Limiting**: Respectful API usage within Binance limits
+- **Base URL**: VITE_API_BASE environment variable
+- **Authentication**: JWT Bearer tokens with automatic refresh
+- **Error Handling**: Comprehensive error states with user-friendly messages
+- **Polling**: Non-blocking 5-second intervals for status updates
 
-## Success Metrics
+### State Management
+- **Local Storage**: Form values, JWT tokens
+- **React State**: Component state, API responses
+- **Persistence**: Critical user preferences and session data
 
-### User Experience
-- Fast initial load time (<3 seconds)
-- Responsive real-time updates
-- Clear visual feedback for all interactions
-- Accessible across devices and screen sizes
+### Environment Configuration
+- **DRY_RUN_ENABLED**: Toggle for demo/live modes
+- **WS_SUBSCRIBE_SYMBOLS**: Auto-subscription management
+- **AUTH_REQUIRED**: Security enforcement
 
-### Technical Performance
-- 99% uptime for price data feeds
-- <100ms response time for user interactions
-- Graceful error handling and recovery
-- Efficient memory usage for extended sessions
+## Edge Cases & Problem Scenarios
+- **Network Failures**: Graceful degradation with retry mechanisms
+- **Authentication Expiry**: Automatic token refresh
+- **API Errors**: Clear error messages with recovery options
+- **WebSocket Disconnections**: Status indicators and reconnection logic
 
-## Future Enhancements
+## Testing Focus
+- **API Integration**: All endpoints properly authenticated
+- **Error Handling**: Network failures and API errors
+- **State Persistence**: localStorage functionality
+- **Real-time Updates**: WebSocket status polling accuracy
 
-### Phase 2 Features
-- Price alerts and notifications
-- Advanced charting with technical indicators
-- Multiple exchange support
-- Portfolio allocation visualization
-
-### Integration Possibilities
-- Webhook support for external trading signals
-- Custom strategy backtesting
-- Risk management tools
-- Advanced order types and automation
+## Reflection
+This dashboard provides essential trading bot control while maintaining security and reliability. The focus on real-time status monitoring and clear error handling ensures operators can confidently manage their trading systems.
